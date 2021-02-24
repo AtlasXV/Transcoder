@@ -17,7 +17,11 @@ package com.otaliastudios.transcoder.engine;
 
 import android.media.MediaFormat;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.otaliastudios.transcoder.TranscoderOptions;
+import com.otaliastudios.transcoder.internal.Logger;
 import com.otaliastudios.transcoder.internal.TrackTypeMap;
 import com.otaliastudios.transcoder.internal.ValidatorException;
 import com.otaliastudios.transcoder.sink.DataSink;
@@ -30,10 +34,6 @@ import com.otaliastudios.transcoder.transcode.NoOpTrackTranscoder;
 import com.otaliastudios.transcoder.transcode.PassThroughTrackTranscoder;
 import com.otaliastudios.transcoder.transcode.TrackTranscoder;
 import com.otaliastudios.transcoder.transcode.VideoTrackTranscoder;
-import com.otaliastudios.transcoder.internal.Logger;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -171,7 +171,9 @@ public class Engine {
                     case VIDEO:
                         transcoder = new VideoTrackTranscoder(dataSource, mDataSink,
                                 interpolator,
-                                options.getVideoRotation());
+                                options.getVideoRotation(),
+                                options.getGlDrawStrategy()
+                        );
                         break;
                     case AUDIO:
                         transcoder = new AudioTrackTranscoder(dataSource, mDataSink,

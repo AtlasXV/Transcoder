@@ -16,20 +16,20 @@
 package com.otaliastudios.transcoder.transcode;
 
 import android.media.MediaCodec;
-import android.media.MediaExtractor;
 import android.media.MediaFormat;
 
 import androidx.annotation.NonNull;
 
 import com.otaliastudios.transcoder.engine.TrackType;
+import com.otaliastudios.transcoder.internal.Logger;
 import com.otaliastudios.transcoder.internal.MediaCodecBuffers;
+import com.otaliastudios.transcoder.internal.MediaFormatConstants;
 import com.otaliastudios.transcoder.sink.DataSink;
 import com.otaliastudios.transcoder.source.DataSource;
 import com.otaliastudios.transcoder.time.TimeInterpolator;
+import com.otaliastudios.transcoder.transcode.internal.GlDrawStrategy;
 import com.otaliastudios.transcoder.transcode.internal.VideoDecoderOutput;
 import com.otaliastudios.transcoder.transcode.internal.VideoEncoderInput;
-import com.otaliastudios.transcoder.internal.Logger;
-import com.otaliastudios.transcoder.internal.MediaFormatConstants;
 import com.otaliastudios.transcoder.transcode.internal.VideoFrameDropper;
 
 import java.nio.ByteBuffer;
@@ -43,6 +43,7 @@ public class VideoTrackTranscoder extends BaseTrackTranscoder {
 
     private VideoDecoderOutput mDecoderOutputSurface;
     private VideoEncoderInput mEncoderInputSurface;
+    private final GlDrawStrategy mGlDrawStrategy;
     private MediaCodec mEncoder; // Keep this since we want to signal EOS on it.
     private VideoFrameDropper mFrameDropper;
     private final TimeInterpolator mTimeInterpolator;
@@ -53,11 +54,12 @@ public class VideoTrackTranscoder extends BaseTrackTranscoder {
             @NonNull DataSource dataSource,
             @NonNull DataSink dataSink,
             @NonNull TimeInterpolator timeInterpolator,
-            int rotation) {
+            int rotation, GlDrawStrategy glDrawStrategy) {
         super(dataSource, dataSink, TrackType.VIDEO);
         mTimeInterpolator = timeInterpolator;
         mSourceRotation = dataSource.getOrientation();
         mExtraRotation = rotation;
+        mGlDrawStrategy = glDrawStrategy;
     }
 
     @Override
@@ -100,7 +102,7 @@ public class VideoTrackTranscoder extends BaseTrackTranscoder {
 
         // The rotation we should apply is the intrinsic source rotation, plus any extra
         // rotation that was set into the TranscoderOptions.
-        mDecoderOutputSurface = new VideoDecoderOutput();
+        mDecoderOutputSurface = new VideoDecoderOutput(mGlDrawStrategy);
         mDecoderOutputSurface.setRotation((mSourceRotation + mExtraRotation) % 360);
         decoder.configure(format, mDecoderOutputSurface.getSurface(), null, 0);
     }

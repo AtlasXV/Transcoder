@@ -6,15 +6,19 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
 import com.otaliastudios.transcoder.engine.TrackType;
 import com.otaliastudios.transcoder.resample.AudioResampler;
 import com.otaliastudios.transcoder.resample.DefaultAudioResampler;
 import com.otaliastudios.transcoder.sink.DataSink;
 import com.otaliastudios.transcoder.sink.DefaultDataSink;
+import com.otaliastudios.transcoder.source.BlankAudioDataSource;
 import com.otaliastudios.transcoder.source.DataSource;
 import com.otaliastudios.transcoder.source.FileDescriptorDataSource;
 import com.otaliastudios.transcoder.source.FilePathDataSource;
-import com.otaliastudios.transcoder.source.BlankAudioDataSource;
 import com.otaliastudios.transcoder.source.UriDataSource;
 import com.otaliastudios.transcoder.strategy.DefaultAudioStrategy;
 import com.otaliastudios.transcoder.strategy.DefaultVideoStrategies;
@@ -24,6 +28,7 @@ import com.otaliastudios.transcoder.stretch.DefaultAudioStretcher;
 import com.otaliastudios.transcoder.time.DefaultTimeInterpolator;
 import com.otaliastudios.transcoder.time.SpeedTimeInterpolator;
 import com.otaliastudios.transcoder.time.TimeInterpolator;
+import com.otaliastudios.transcoder.transcode.internal.GlDrawStrategy;
 import com.otaliastudios.transcoder.validator.DefaultValidator;
 import com.otaliastudios.transcoder.validator.Validator;
 
@@ -31,10 +36,6 @@ import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 /**
  * Collects transcoding options consumed by {@link Transcoder}.
@@ -48,6 +49,7 @@ public class TranscoderOptions {
     private List<DataSource> audioDataSources;
     private TrackStrategy audioTrackStrategy;
     private TrackStrategy videoTrackStrategy;
+    private GlDrawStrategy glDrawStrategy;
     private Validator validator;
     private int rotation;
     private TimeInterpolator timeInterpolator;
@@ -82,6 +84,10 @@ public class TranscoderOptions {
         return videoTrackStrategy;
     }
 
+    public GlDrawStrategy getGlDrawStrategy() {
+        return glDrawStrategy;
+    }
+
     @NonNull
     public Validator getValidator() {
         return validator;
@@ -114,6 +120,7 @@ public class TranscoderOptions {
         private Handler listenerHandler;
         private TrackStrategy audioTrackStrategy;
         private TrackStrategy videoTrackStrategy;
+        private GlDrawStrategy glDrawStrategy;
         private Validator validator;
         private int rotation;
         private TimeInterpolator timeInterpolator;
@@ -213,6 +220,11 @@ public class TranscoderOptions {
         @SuppressWarnings("unused")
         public Builder setVideoTrackStrategy(@Nullable TrackStrategy trackStrategy) {
             this.videoTrackStrategy = trackStrategy;
+            return this;
+        }
+
+        public Builder setGlDrawStrategy(GlDrawStrategy drawStrategy) {
+            this.glDrawStrategy = drawStrategy;
             return this;
         }
 
@@ -404,6 +416,7 @@ public class TranscoderOptions {
             options.listenerHandler = listenerHandler;
             options.audioTrackStrategy = audioTrackStrategy;
             options.videoTrackStrategy = videoTrackStrategy;
+            options.glDrawStrategy = glDrawStrategy;
             options.validator = validator;
             options.rotation = rotation;
             options.timeInterpolator = timeInterpolator;

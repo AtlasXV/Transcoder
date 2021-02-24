@@ -2,15 +2,11 @@ package com.otaliastudios.transcoder.transcode.internal;
 
 
 import android.graphics.SurfaceTexture;
-import android.opengl.Matrix;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 
-import com.otaliastudios.opengl.draw.GlRect;
-import com.otaliastudios.opengl.program.GlTextureProgram;
-import com.otaliastudios.opengl.texture.GlTexture;
 import com.otaliastudios.transcoder.internal.Logger;
 
 /**
@@ -34,10 +30,7 @@ public class VideoDecoderOutput {
 
     private SurfaceTexture mSurfaceTexture;
     private Surface mSurface;
-
-    private GlTextureProgram mProgram;
-    private GlRect mDrawable;
-
+    private GlDrawStrategy glDrawStrategy = new DefaultGlDrawStrategy();
     private float mScaleX = 1F;
     private float mScaleY = 1F;
     private int mRotation = 0;
@@ -49,18 +42,16 @@ public class VideoDecoderOutput {
     /**
      * Creates an VideoDecoderOutput using the current EGL context (rather than establishing a
      * new one). Creates a Surface that can be passed to MediaCodec.configure().
+     *
+     * @param drawStrategy
      */
-    public VideoDecoderOutput() {
-        GlTexture texture = new GlTexture();
-        mProgram = new GlTextureProgram();
-        mProgram.setTexture(texture);
-        mDrawable = new GlRect();
-
+    public VideoDecoderOutput(GlDrawStrategy drawStrategy) {
+        this.glDrawStrategy = drawStrategy;
         // Even if we don't access the SurfaceTexture after the constructor returns, we
         // still need to keep a reference to it.  The Surface doesn't retain a reference
         // at the Java level, so if we don't either then the object can get GCed, which
         // causes the native finalizer to run.
-        mSurfaceTexture = new SurfaceTexture(texture.getId());
+        mSurfaceTexture = glDrawStrategy.onCreate();
         mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
             @Override
             public void onFrameAvailable(SurfaceTexture surfaceTexture) {
@@ -109,15 +100,13 @@ public class VideoDecoderOutput {
      * Discard all resources held by this class, notably the EGL context.
      */
     public void release() {
-        mProgram.release();
+        glDrawStrategy.onDestroy();
         mSurface.release();
         // this causes a bunch of warnings that appear harmless but might confuse someone:
         // W BufferQueue: [unnamed-3997-2] cancelBuffer: BufferQueue has been abandoned!
         // mSurfaceTexture.release();
         mSurface = null;
         mSurfaceTexture = null;
-        mDrawable = null;
-        mProgram = null;
     }
 
     /**
@@ -160,21 +149,7 @@ public class VideoDecoderOutput {
      * Draws the data from SurfaceTexture onto the current EGL surface.
      */
     private void drawNewFrame() {
-        mSurfaceTexture.getTransformMatrix(mProgram.getTextureTransform());
-        // Invert the scale.
-        float glScaleX = 1F / mScaleX;
-        float glScaleY = 1F / mScaleY;
-        // Compensate before scaling.
-        float glTranslX = (1F - glScaleX) / 2F;
-        float glTranslY = (1F - glScaleY) / 2F;
-        Matrix.translateM(mProgram.getTextureTransform(), 0, glTranslX, glTranslY, 0);
-        // Scale.
-        Matrix.scaleM(mProgram.getTextureTransform(), 0, glScaleX, glScaleY, 1);
-        // Apply rotation.
-        Matrix.translateM(mProgram.getTextureTransform(), 0, 0.5F, 0.5F, 0);
-        Matrix.rotateM(mProgram.getTextureTransform(), 0, mRotation, 0, 0, 1);
-        Matrix.translateM(mProgram.getTextureTransform(), 0, -0.5F, -0.5F, 0);
-        // Draw.
-        mProgram.draw(mDrawable);
+        mSurfaceTexture.getTransformMatrix(glDrawStrategy.getTextureTransform());
+        glDrawStrategy.drawFrame(mScaleX, mScaleY, mRotation);
     }
 }

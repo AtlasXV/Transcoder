@@ -10,7 +10,7 @@ public class ExactResizer implements Resizer {
     private final Size output;
 
     public ExactResizer(int first, int second) {
-        output = new Size(first, second);
+        output = new ExactSize(first, second);
     }
 
     @SuppressWarnings("unused")

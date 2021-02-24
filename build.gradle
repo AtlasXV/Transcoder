@@ -1,5 +1,5 @@
 buildscript {
-
+    ext.kotlin_version = "1.4.30"
     repositories {
         google()
         jcenter()
@@ -15,7 +15,8 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.2'
-        classpath 'com.atlasv.android.publishlib:plugin:1.2.1.1'
+        classpath 'com.atlasv.android.publishlib:plugin:1.2.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -31,6 +32,7 @@ allprojects {
                 password = System.getenv("GPR_KEY") ?: project.findProperty("GPR_KEY")
             }
         }
+        mavenLocal()
     }
 }
 
