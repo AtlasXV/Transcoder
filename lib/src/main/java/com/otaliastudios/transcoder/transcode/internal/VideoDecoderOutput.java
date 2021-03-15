@@ -46,7 +46,9 @@ public class VideoDecoderOutput {
      * @param drawStrategy
      */
     public VideoDecoderOutput(GlDrawStrategy drawStrategy) {
-        this.glDrawStrategy = drawStrategy;
+        if (drawStrategy != null) {
+            this.glDrawStrategy = drawStrategy;
+        }
         // Even if we don't access the SurfaceTexture after the constructor returns, we
         // still need to keep a reference to it.  The Surface doesn't retain a reference
         // at the Java level, so if we don't either then the object can get GCed, which
