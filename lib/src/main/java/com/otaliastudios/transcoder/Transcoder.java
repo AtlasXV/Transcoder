@@ -18,12 +18,14 @@ package com.otaliastudios.transcoder;
 import android.os.Build;
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
 import com.otaliastudios.transcoder.engine.Engine;
-import com.otaliastudios.transcoder.sink.DataSink;
-import com.otaliastudios.transcoder.source.DataSource;
 import com.otaliastudios.transcoder.internal.Logger;
-import com.otaliastudios.transcoder.validator.Validator;
 import com.otaliastudios.transcoder.internal.ValidatorException;
+import com.otaliastudios.transcoder.sink.DataSink;
+import com.otaliastudios.transcoder.validator.Validator;
 
 import java.io.FileDescriptor;
 import java.util.concurrent.Callable;
@@ -33,9 +35,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 public class Transcoder {
     private static final String TAG = Transcoder.class.getSimpleName();
@@ -66,11 +65,13 @@ public class Transcoder {
     }
 
     private ThreadPoolExecutor mExecutor;
+    public static ThreadCountStrategy threadCountStrategy;
 
     private Transcoder() {
         // This executor will execute at most 'pool' tasks concurrently,
         // then queue all the others. CPU + 1 is used by AsyncTask.
-        int pool = Runtime.getRuntime().availableProcessors() + 1;
+        int pool = (threadCountStrategy != null) ? threadCountStrategy.getThreadCount() : Runtime.getRuntime().availableProcessors() + 1;
+        LOG.i("[transcoder]thread corePoolSize/maximumPoolSize = " + pool);
         mExecutor = new ThreadPoolExecutor(pool, pool,
                 60, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(),
