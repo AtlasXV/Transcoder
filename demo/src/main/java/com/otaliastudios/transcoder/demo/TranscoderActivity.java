@@ -370,6 +370,11 @@ public class TranscoderActivity extends AppCompatActivity implements
         onTranscodeFinished(false, "Transcoder error occurred. " + exception.getMessage());
     }
 
+    @Override
+    public void onPreTranscodeCompleted(int successCode) {
+        
+    }
+
     private void onTranscodeFinished(boolean isSuccess, String toastMessage) {
         mProgressView.setIndeterminate(false);
         mProgressView.setProgress(isSuccess ? PROGRESS_BAR_MAX : 0);
