@@ -22,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.otaliastudios.transcoder.engine.Engine;
+import com.otaliastudios.transcoder.ext.DefaultTranscodeOptionFactory;
+import com.otaliastudios.transcoder.ext.TranscodeOptionFactory;
 import com.otaliastudios.transcoder.internal.Logger;
 import com.otaliastudios.transcoder.internal.ValidatorException;
 import com.otaliastudios.transcoder.sink.DataSink;
@@ -128,19 +130,24 @@ public class Transcoder {
         return new TranscoderOptions.Builder(dataSink);
     }
 
+    public Future<Void> transcode(@NonNull final TranscoderOptions options) {
+        return transcode(new DefaultTranscodeOptionFactory(options));
+    }
+
     /**
      * Transcodes video file asynchronously.
      *
-     * @param options The transcoder options.
+     * @param factory The transcoder options factory.
      * @return a Future that completes when transcoding is completed
      */
     @NonNull
-    public Future<Void> transcode(@NonNull final TranscoderOptions options) {
-        final TranscoderListener listenerWrapper = new ListenerWrapper(options.listenerHandler,
-                options.listener);
+    public Future<Void> transcode(@NonNull final TranscodeOptionFactory factory) {
         return mExecutor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
+                TranscoderOptions options = factory.create();
+                final TranscoderListener listenerWrapper = new ListenerWrapper(options.listenerHandler,
+                        options.listener);
                 try {
                     Engine engine = new Engine(new Engine.ProgressCallback() {
                         @Override
@@ -149,6 +156,7 @@ public class Transcoder {
                         }
                     });
                     engine.transcode(options);
+                    listenerWrapper.onPreTranscodeCompleted(SUCCESS_TRANSCODED);
                     listenerWrapper.onTranscodeCompleted(SUCCESS_TRANSCODED);
 
                 } catch (ValidatorException e) {
@@ -224,6 +232,11 @@ public class Transcoder {
                     mListener.onTranscodeFailed(exception);
                 }
             });
+        }
+
+        @Override
+        public void onPreTranscodeCompleted(int successCode) {
+            mListener.onPreTranscodeCompleted(successCode);
         }
 
         @Override

@@ -31,7 +31,10 @@ public interface TranscoderListener {
 
     /**
      * Called when transcode failed.
+     *
      * @param exception the failure exception
      */
     void onTranscodeFailed(@NonNull Throwable exception);
+
+    void onPreTranscodeCompleted(int successCode);
 }
