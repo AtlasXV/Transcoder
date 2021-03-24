@@ -2,6 +2,7 @@ package com.otaliastudios.transcoder.resize;
 
 import androidx.annotation.NonNull;
 
+import com.otaliastudios.transcoder.common.ExactSize;
 import com.otaliastudios.transcoder.common.Size;
 import com.otaliastudios.transcoder.resize.Resizer;
 
@@ -13,7 +14,7 @@ public class ExactResizer implements Resizer {
     private final Size output;
 
     public ExactResizer(int first, int second) {
-        output = new Size(first, second);
+        output = new ExactSize(first, second);
     }
 
     @SuppressWarnings("unused")
