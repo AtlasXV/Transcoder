@@ -1,5 +1,6 @@
 package com.otaliastudios.transcoder.internal.utils
 
+import com.otaliastudios.transcoder.internal.transcode.ThreadCountStrategy
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.ThreadPoolExecutor
@@ -7,6 +8,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 internal object ThreadPool {
+    var threadCountStrategy: ThreadCountStrategy? = null
 
     /**
      * NOTE: A better maximum pool size (instead of CPU+1) would be the number of MediaCodec
@@ -15,8 +17,8 @@ internal object ThreadPool {
      */
     @JvmStatic
     val executor = ThreadPoolExecutor(
-            Runtime.getRuntime().availableProcessors() + 1,
-            Runtime.getRuntime().availableProcessors() + 1,
+            getThreadCount(),
+            getThreadCount(),
             60,
             TimeUnit.SECONDS,
             LinkedBlockingQueue(),
@@ -26,4 +28,8 @@ internal object ThreadPool {
                     return Thread(r, "TranscoderThread #" + count.getAndIncrement())
                 }
             })
+
+    private fun getThreadCount(): Int {
+        return threadCountStrategy?.getThreadCount() ?: (Runtime.getRuntime().availableProcessors() + 1)
+    }
 }

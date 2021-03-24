@@ -17,6 +17,9 @@ package com.otaliastudios.transcoder;
 
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
 import com.otaliastudios.transcoder.internal.transcode.TranscodeEngine;
 import com.otaliastudios.transcoder.internal.utils.ThreadPool;
 import com.otaliastudios.transcoder.sink.DataSink;
@@ -25,9 +28,6 @@ import com.otaliastudios.transcoder.validator.Validator;
 import java.io.FileDescriptor;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 public class Transcoder {
     /**
