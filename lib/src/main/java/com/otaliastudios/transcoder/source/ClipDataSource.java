@@ -17,4 +17,9 @@ public class ClipDataSource extends DataSourceWrapper {
                 clipStartUs,
                 source.getDurationUs() - clipEndUs));
     }
+
+    @Override
+    public long getRelativePositionUs() {
+        return getSource().getRelativePositionUs();
+    }
 }

@@ -69,7 +69,7 @@ public class TrimDataSource extends DataSourceWrapper {
     public boolean isDrained() {
         // Enforce the trim end: this works thanks to the fact that extraDurationUs is added
         // to the duration, otherwise it would fail for videos with sparse keyframes.
-        return super.isDrained() || getPositionUs() >= getDurationUs();
+        return super.isDrained() || getRelativePositionUs() >= getDurationUs();
     }
 
     @Override
@@ -85,5 +85,11 @@ public class TrimDataSource extends DataSourceWrapper {
     public void deinitialize() {
         super.deinitialize();
         trimDone = false;
+    }
+
+    @Override
+    public long getRelativePositionUs() {
+        long realTrimStartUs = trimStartUs - extraDurationUs;
+        return getPositionUs() - realTrimStartUs;
     }
 }

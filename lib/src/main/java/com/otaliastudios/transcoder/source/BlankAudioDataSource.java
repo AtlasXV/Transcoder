@@ -130,6 +130,11 @@ public class BlankAudioDataSource implements DataSource {
     }
 
     @Override
+    public long getRelativePositionUs() {
+        return getPositionUs();
+    }
+
+    @Override
     public boolean isDrained() {
         return positionUs >= getDurationUs();
     }

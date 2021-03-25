@@ -97,6 +97,8 @@ public interface DataSource {
      */
     long getPositionUs();
 
+    long getRelativePositionUs();
+
     /**
      * When this source has been totally read, it can return true here to
      * notify an end of input stream.

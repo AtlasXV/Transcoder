@@ -74,6 +74,11 @@ public class DataSourceWrapper implements DataSource {
     }
 
     @Override
+    public long getRelativePositionUs() {
+        return getPositionUs();
+    }
+
+    @Override
     public boolean isDrained() {
         return mSource.isDrained();
     }

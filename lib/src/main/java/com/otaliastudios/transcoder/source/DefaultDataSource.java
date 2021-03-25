@@ -262,4 +262,9 @@ public abstract class DefaultDataSource implements DataSource {
         LOG.i("getTrackFormat(" + type + ")");
         return mFormat.getOrNull(type);
     }
+
+    @Override
+    public long getRelativePositionUs() {
+        return getPositionUs();
+    }
 }
