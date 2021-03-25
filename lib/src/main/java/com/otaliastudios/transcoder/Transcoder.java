@@ -20,6 +20,8 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import com.otaliastudios.transcoder.ext.DefaultTranscodeOptionFactory;
+import com.otaliastudios.transcoder.ext.TranscodeOptionFactory;
 import com.otaliastudios.transcoder.internal.transcode.TranscodeEngine;
 import com.otaliastudios.transcoder.internal.utils.ThreadPool;
 import com.otaliastudios.transcoder.sink.DataSink;
@@ -88,18 +90,22 @@ public class Transcoder {
         return new TranscoderOptions.Builder(dataSink);
     }
 
+    public Future<Void> transcode(@NonNull final TranscoderOptions options) {
+        return transcode(new DefaultTranscodeOptionFactory(options));
+    }
+
     /**
      * Transcodes video file asynchronously.
      *
-     * @param options The transcoder options.
+     * @param factory The transcoder options factory.
      * @return a Future that completes when transcoding is completed
      */
     @NonNull
-    public Future<Void> transcode(@NonNull final TranscoderOptions options) {
+    public Future<Void> transcode(@NonNull final TranscodeOptionFactory factory) {
         return ThreadPool.getExecutor().submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                TranscodeEngine.transcode(options);
+                TranscodeEngine.transcode(factory.create());
                 return null;
             }
         });
