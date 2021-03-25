@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi;
 
 import com.otaliastudios.transcoder.ext.DefaultTranscodeOptionFactory;
 import com.otaliastudios.transcoder.ext.TranscodeOptionFactory;
+import com.otaliastudios.transcoder.internal.transcode.ThreadCountStrategy;
 import com.otaliastudios.transcoder.internal.transcode.TranscodeEngine;
 import com.otaliastudios.transcoder.internal.utils.ThreadPool;
 import com.otaliastudios.transcoder.sink.DataSink;
@@ -32,6 +33,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 public class Transcoder {
+    public static ThreadCountStrategy threadCountStrategy;
+
     /**
      * Constant for {@link TranscoderListener#onTranscodeCompleted(int)}.
      * Transcoding was executed successfully.

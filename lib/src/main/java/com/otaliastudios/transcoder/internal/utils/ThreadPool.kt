@@ -1,5 +1,6 @@
 package com.otaliastudios.transcoder.internal.utils
 
+import com.otaliastudios.transcoder.Transcoder.threadCountStrategy
 import com.otaliastudios.transcoder.internal.transcode.ThreadCountStrategy
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadFactory
@@ -8,7 +9,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 internal object ThreadPool {
-    var threadCountStrategy: ThreadCountStrategy? = null
 
     /**
      * NOTE: A better maximum pool size (instead of CPU+1) would be the number of MediaCodec
