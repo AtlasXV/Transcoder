@@ -30,6 +30,7 @@ class TranscodeDispatcher {
     }
 
     void dispatchSuccess(final int successCode) {
+        mListener.onPreTranscodeCompleted(successCode);
         mHandler.post(new Runnable() {
             @Override
             public void run() {

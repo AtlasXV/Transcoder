@@ -16,6 +16,8 @@ public interface TranscoderListener {
      */
     void onTranscodeProgress(double progress);
 
+    void onPreTranscodeCompleted(int successCode);
+
     /**
      * Called when transcode completed. The success code can be either
      * {@link Transcoder#SUCCESS_TRANSCODED} or {@link Transcoder#SUCCESS_NOT_NEEDED}.
