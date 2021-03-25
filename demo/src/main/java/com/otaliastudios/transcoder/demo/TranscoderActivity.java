@@ -374,4 +374,8 @@ public class TranscoderActivity extends AppCompatActivity implements
         Toast.makeText(TranscoderActivity.this, toastMessage, Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    public void onPreTranscodeCompleted(int successCode) {
+        
+    }
 }

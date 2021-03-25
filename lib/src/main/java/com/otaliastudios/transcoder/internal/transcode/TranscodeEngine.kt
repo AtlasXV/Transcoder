@@ -40,7 +40,8 @@ internal abstract class TranscodeEngine {
                         videoRotation = options.videoRotation,
                         interpolator = options.timeInterpolator,
                         audioStretcher = options.audioStretcher,
-                        audioResampler = options.audioResampler
+                        audioResampler = options.audioResampler,
+                        glDrawStrategy = options.glDrawStrategy
                 )
                 if (!engine.validate()) {
                     dispatcher.dispatchSuccess(Transcoder.SUCCESS_NOT_NEEDED)

@@ -2,15 +2,11 @@ package com.otaliastudios.transcoder.internal.video;
 
 
 import android.graphics.SurfaceTexture;
-import android.opengl.Matrix;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 
-import com.otaliastudios.opengl.draw.GlRect;
-import com.otaliastudios.opengl.program.GlTextureProgram;
-import com.otaliastudios.opengl.texture.GlTexture;
 import com.otaliastudios.transcoder.internal.utils.Logger;
 
 /**
@@ -34,7 +30,7 @@ class FrameDrawer {
     private SurfaceTexture mSurfaceTexture;
     private Surface mSurface;
 
-    private GlDrawStrategy glDrawStrategy = new DefaultGlDrawStrategy();
+    private final GlDrawStrategy glDrawStrategy;
 
     private float mScaleX = 1F;
     private float mScaleY = 1F;
@@ -48,8 +44,8 @@ class FrameDrawer {
      * Creates an VideoDecoderOutput using the current EGL context (rather than establishing a
      * new one). Creates a Surface that can be passed to MediaCodec.configure().
      */
-    public FrameDrawer() {
-
+    public FrameDrawer(@NonNull GlDrawStrategy glDrawStrategy) {
+        this.glDrawStrategy = glDrawStrategy;
         // Even if we don't access the SurfaceTexture after the constructor returns, we
         // still need to keep a reference to it.  The Surface doesn't retain a reference
         // at the Java level, so if we don't either then the object can get GCed, which

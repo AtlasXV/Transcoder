@@ -15,6 +15,7 @@ import com.otaliastudios.transcoder.internal.utils.Logger
 import com.otaliastudios.transcoder.internal.utils.TrackMap
 import com.otaliastudios.transcoder.internal.utils.forcingEos
 import com.otaliastudios.transcoder.internal.utils.ignoringEos
+import com.otaliastudios.transcoder.internal.video.GlDrawStrategy
 import com.otaliastudios.transcoder.resample.AudioResampler
 import com.otaliastudios.transcoder.sink.DataSink
 import com.otaliastudios.transcoder.strategy.TrackStrategy
@@ -30,7 +31,8 @@ internal class DefaultTranscodeEngine(
         private val videoRotation: Int,
         private val audioStretcher: AudioStretcher,
         private val audioResampler: AudioResampler,
-        interpolator: TimeInterpolator
+        interpolator: TimeInterpolator,
+        private val glDrawStrategy: GlDrawStrategy
 ) : TranscodeEngine() {
 
     private val log = Logger("TranscodeEngine")
@@ -77,7 +79,7 @@ internal class DefaultTranscodeEngine(
             TrackStatus.PASS_THROUGH -> PassThroughPipeline(type, source, sink, interpolator)
             TrackStatus.COMPRESSING -> RegularPipeline(type,
                     source, sink, interpolator, outputFormat,
-                    videoRotation, audioStretcher, audioResampler)
+                    videoRotation, audioStretcher, audioResampler, glDrawStrategy)
         }
     }
 

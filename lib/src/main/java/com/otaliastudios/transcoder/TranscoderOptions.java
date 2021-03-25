@@ -6,7 +6,13 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
 import com.otaliastudios.transcoder.common.TrackType;
+import com.otaliastudios.transcoder.internal.video.DefaultGlDrawStrategy;
+import com.otaliastudios.transcoder.internal.video.GlDrawStrategy;
 import com.otaliastudios.transcoder.resample.AudioResampler;
 import com.otaliastudios.transcoder.resample.DefaultAudioResampler;
 import com.otaliastudios.transcoder.sink.DataSink;
@@ -14,7 +20,6 @@ import com.otaliastudios.transcoder.sink.DefaultDataSink;
 import com.otaliastudios.transcoder.source.DataSource;
 import com.otaliastudios.transcoder.source.FileDescriptorDataSource;
 import com.otaliastudios.transcoder.source.FilePathDataSource;
-import com.otaliastudios.transcoder.source.BlankAudioDataSource;
 import com.otaliastudios.transcoder.source.UriDataSource;
 import com.otaliastudios.transcoder.strategy.DefaultAudioStrategy;
 import com.otaliastudios.transcoder.strategy.DefaultVideoStrategies;
@@ -31,10 +36,6 @@ import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 /**
  * Collects transcoding options consumed by {@link Transcoder}.
@@ -55,6 +56,7 @@ public class TranscoderOptions {
     private AudioResampler audioResampler;
     private TranscoderListener listener;
     private Handler listenerHandler;
+    private GlDrawStrategy glDrawStrategy;
 
     @NonNull
     public TranscoderListener getListener() {
@@ -110,6 +112,10 @@ public class TranscoderOptions {
         return audioStretcher;
     }
 
+    public GlDrawStrategy getGlDrawStrategy() {
+        return glDrawStrategy;
+    }
+
     @NonNull
     public AudioResampler getAudioResampler() {
         return audioResampler;
@@ -128,6 +134,7 @@ public class TranscoderOptions {
         private TimeInterpolator timeInterpolator;
         private AudioStretcher audioStretcher;
         private AudioResampler audioResampler;
+        private GlDrawStrategy glDrawStrategy;
 
         Builder(@NonNull String outPath) {
             this.dataSink = new DefaultDataSink(outPath);
@@ -304,6 +311,11 @@ public class TranscoderOptions {
             return setTimeInterpolator(new SpeedTimeInterpolator(speedFactor));
         }
 
+        public Builder setGlDrawStrategy(GlDrawStrategy glDrawStrategy) {
+            this.glDrawStrategy = glDrawStrategy;
+            return this;
+        }
+
         /**
          * Sets an {@link AudioStretcher} to perform stretching of audio samples
          * as a consequence of speed and time interpolator changes.
@@ -369,6 +381,9 @@ public class TranscoderOptions {
             if (audioResampler == null) {
                 audioResampler = new DefaultAudioResampler();
             }
+            if (glDrawStrategy == null) {
+                glDrawStrategy = new DefaultGlDrawStrategy();
+            }
             TranscoderOptions options = new TranscoderOptions();
             options.listener = listener;
             options.audioDataSources = audioDataSources;
@@ -382,6 +397,7 @@ public class TranscoderOptions {
             options.timeInterpolator = timeInterpolator;
             options.audioStretcher = audioStretcher;
             options.audioResampler = audioResampler;
+            options.glDrawStrategy = glDrawStrategy;
             return options;
         }
 

@@ -3,13 +3,14 @@ package com.otaliastudios.transcoder.internal.pipeline
 import android.media.MediaFormat
 import com.otaliastudios.transcoder.common.TrackType
 import com.otaliastudios.transcoder.internal.audio.AudioEngine
-import com.otaliastudios.transcoder.internal.data.*
-import com.otaliastudios.transcoder.internal.data.Reader
-import com.otaliastudios.transcoder.internal.data.ReaderTimer
-import com.otaliastudios.transcoder.internal.data.Writer
 import com.otaliastudios.transcoder.internal.codec.Decoder
 import com.otaliastudios.transcoder.internal.codec.DecoderTimer
 import com.otaliastudios.transcoder.internal.codec.Encoder
+import com.otaliastudios.transcoder.internal.data.Bridge
+import com.otaliastudios.transcoder.internal.data.Reader
+import com.otaliastudios.transcoder.internal.data.ReaderTimer
+import com.otaliastudios.transcoder.internal.data.Writer
+import com.otaliastudios.transcoder.internal.video.GlDrawStrategy
 import com.otaliastudios.transcoder.internal.video.VideoPublisher
 import com.otaliastudios.transcoder.internal.video.VideoRenderer
 import com.otaliastudios.transcoder.resample.AudioResampler
@@ -40,9 +41,10 @@ internal fun RegularPipeline(
         format: MediaFormat,
         videoRotation: Int,
         audioStretcher: AudioStretcher,
-        audioResampler: AudioResampler
+        audioResampler: AudioResampler,
+        glDrawStrategy: GlDrawStrategy
 ) = when (track) {
-    TrackType.VIDEO -> VideoPipeline(source, sink, interpolator, format, videoRotation)
+    TrackType.VIDEO -> VideoPipeline(source, sink, interpolator, format, videoRotation, glDrawStrategy)
     TrackType.AUDIO -> AudioPipeline(source, sink, interpolator, format, audioStretcher, audioResampler)
 }
 
@@ -51,12 +53,13 @@ private fun VideoPipeline(
         sink: DataSink,
         interpolator: TimeInterpolator,
         format: MediaFormat,
-        videoRotation: Int
+        videoRotation: Int,
+        glDrawStrategy: GlDrawStrategy
 ) = Pipeline.build("Video") {
     Reader(source, TrackType.VIDEO) +
             Decoder(source.getTrackFormat(TrackType.VIDEO)!!, true) +
             DecoderTimer(TrackType.VIDEO, interpolator) +
-            VideoRenderer(source.orientation, videoRotation, format) +
+            VideoRenderer(source.orientation, videoRotation, format, glDrawStrategy) +
             VideoPublisher() +
             Encoder(format) +
             Writer(sink, TrackType.VIDEO)
