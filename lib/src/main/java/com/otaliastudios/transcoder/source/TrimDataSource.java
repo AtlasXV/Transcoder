@@ -92,10 +92,10 @@ public class TrimDataSource extends DataSourceWrapper {
         long superReceivedUs = getSource().seekTo(superDesiredUs);
         return superReceivedUs - trimStartUs;
     }
-    }
 
     @Override
     public long getRelativePositionUs() {
         long realTrimStartUs = trimStartUs - extraDurationUs;
         return getPositionUs() - realTrimStartUs;
+    }
 }
