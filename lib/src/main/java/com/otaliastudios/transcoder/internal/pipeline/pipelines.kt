@@ -2,6 +2,7 @@ package com.otaliastudios.transcoder.internal.pipeline
 
 import android.media.MediaFormat
 import com.otaliastudios.transcoder.common.TrackType
+import com.otaliastudios.transcoder.internal.Codecs
 import com.otaliastudios.transcoder.internal.audio.AudioEngine
 import com.otaliastudios.transcoder.internal.codec.Decoder
 import com.otaliastudios.transcoder.internal.codec.DecoderTimer
@@ -39,13 +40,14 @@ internal fun RegularPipeline(
         sink: DataSink,
         interpolator: TimeInterpolator,
         format: MediaFormat,
+        codecs: Codecs,
         videoRotation: Int,
         audioStretcher: AudioStretcher,
         audioResampler: AudioResampler,
         glDrawStrategy: GlDrawStrategy
 ) = when (track) {
-    TrackType.VIDEO -> VideoPipeline(source, sink, interpolator, format, videoRotation, glDrawStrategy)
-    TrackType.AUDIO -> AudioPipeline(source, sink, interpolator, format, audioStretcher, audioResampler)
+    TrackType.VIDEO -> VideoPipeline(source, sink, interpolator, format, codecs, videoRotation, glDrawStrategy)
+    TrackType.AUDIO -> AudioPipeline(source, sink, interpolator, format, codecs, audioStretcher, audioResampler)
 }
 
 private fun VideoPipeline(
@@ -53,6 +55,7 @@ private fun VideoPipeline(
         sink: DataSink,
         interpolator: TimeInterpolator,
         format: MediaFormat,
+        codecs: Codecs,
         videoRotation: Int,
         glDrawStrategy: GlDrawStrategy
 ) = Pipeline.build("Video") {
@@ -61,7 +64,7 @@ private fun VideoPipeline(
             DecoderTimer(TrackType.VIDEO, interpolator) +
             VideoRenderer(source.orientation, videoRotation, format, glDrawStrategy) +
             VideoPublisher() +
-            Encoder(format) +
+            Encoder(codecs, TrackType.VIDEO) +
             Writer(sink, TrackType.VIDEO)
 }
 
@@ -70,13 +73,14 @@ private fun AudioPipeline(
         sink: DataSink,
         interpolator: TimeInterpolator,
         format: MediaFormat,
+        codecs: Codecs,
         audioStretcher: AudioStretcher,
         audioResampler: AudioResampler
 ) = Pipeline.build("Audio") {
     Reader(source, TrackType.AUDIO) +
             Decoder(source.getTrackFormat(TrackType.AUDIO)!!, true) +
-            DecoderTimer(TrackType.VIDEO, interpolator) +
+            DecoderTimer(TrackType.AUDIO, interpolator) +
             AudioEngine(audioStretcher, audioResampler, format) +
-            Encoder(format) +
+            Encoder(codecs, TrackType.AUDIO) +
             Writer(sink, TrackType.AUDIO)
 }
