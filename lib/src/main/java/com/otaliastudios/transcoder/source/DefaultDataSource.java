@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 
 import com.otaliastudios.transcoder.common.TrackType;
 import com.otaliastudios.transcoder.common.TrackTypeKt;
+import com.otaliastudios.transcoder.ext.ExtUtils;
 import com.otaliastudios.transcoder.internal.utils.ISO6709LocationParser;
 import com.otaliastudios.transcoder.internal.utils.Logger;
 import com.otaliastudios.transcoder.internal.utils.MutableTrackMap;
@@ -18,7 +19,6 @@ import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static android.media.MediaMetadataRetriever.METADATA_KEY_DURATION;
-import static android.media.MediaMetadataRetriever.METADATA_KEY_LOCATION;
 import static android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION;
 import static com.otaliastudios.transcoder.internal.utils.TrackMapKt.mutableTrackMapOf;
 
@@ -246,7 +246,7 @@ public abstract class DefaultDataSource implements DataSource {
     @Override
     public double[] getLocation() {
         LOG.i("getLocation()");
-        String string = mMetadata.extractMetadata(METADATA_KEY_LOCATION);
+        String string = ExtUtils.INSTANCE.getMediaLocation(mMetadata);
         if (string != null) {
             float[] location = new ISO6709LocationParser().parse(string);
             if (location != null) {
