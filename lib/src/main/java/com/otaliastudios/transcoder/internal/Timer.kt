@@ -21,7 +21,7 @@ internal class Timer(
     }
 
     private fun List<DataSource>.positionUs(current: Int) = foldIndexed(0L) { index, acc, source ->
-        if (index <= current) acc + source.relativePositionUs else acc
+        if (index <= current) acc + source.positionUs else acc
     }
 
     val positionUs = object : TrackMap<Long> {
