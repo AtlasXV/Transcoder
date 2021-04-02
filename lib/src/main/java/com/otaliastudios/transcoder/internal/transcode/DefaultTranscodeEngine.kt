@@ -76,7 +76,7 @@ internal class DefaultTranscodeEngine(
             // with a little tolerance.
             timer.positionUs[type] > timer.totalDurationUs + 100L
         }
-        val sink = dataSink.ignoringEos { index < sources.lastIndex }
+        val sink = dataSink.ignoringEos { index <= sources.lastIndex }
         return when (status) {
             TrackStatus.ABSENT -> EmptyPipeline()
             TrackStatus.REMOVING -> EmptyPipeline()

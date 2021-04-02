@@ -32,7 +32,7 @@ internal class DataSources private constructor(
     private val videoSources: List<DataSource> = run {
         val valid = videoSources.count { it.getTrackFormat(TrackType.VIDEO) != null }
         when (valid) {
-            0 -> listOf<DataSource>().also { videoSources.deinit() }
+            0 -> listOf<DataSource>().also { videoSources.init() }
             videoSources.size -> videoSources
             else -> videoSources // Tracks will crash
         }
@@ -41,13 +41,13 @@ internal class DataSources private constructor(
     private val audioSources: List<DataSource> = run {
         val valid = audioSources.count { it.getTrackFormat(TrackType.AUDIO) != null }
         when (valid) {
-            0 -> listOf<DataSource>().also { audioSources.deinit() }
+            0 -> listOf<DataSource>().also { audioSources.init() }
             audioSources.size -> audioSources
             else -> {
                 // Some tracks do not have audio, while some do. Replace with BlankAudio.
                 audioSources.map { source ->
                     if (source.getTrackFormat(TrackType.AUDIO) != null) source
-                    else BlankAudioDataSource(source.durationUs).also { source.deinit() }
+                    else BlankAudioDataSource(source.durationUs).also { source.init() }
                 }
             }
         }
