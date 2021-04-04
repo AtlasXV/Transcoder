@@ -5,7 +5,6 @@ import com.otaliastudios.transcoder.TranscoderOptions
 import com.otaliastudios.transcoder.common.TrackType
 import com.otaliastudios.transcoder.internal.utils.Logger
 import com.otaliastudios.transcoder.internal.utils.TrackMap
-import com.otaliastudios.transcoder.internal.utils.trackMapOf
 import com.otaliastudios.transcoder.source.BlankAudioDataSource
 import com.otaliastudios.transcoder.source.DataSource
 
@@ -32,7 +31,7 @@ internal class DataSources private constructor(
     private val videoSources: List<DataSource> = run {
         val valid = videoSources.count { it.getTrackFormat(TrackType.VIDEO) != null }
         when (valid) {
-            0 -> listOf<DataSource>().also { videoSources.deinit() }
+            0 -> listOf<DataSource>().also { videoSources.init() }
             videoSources.size -> videoSources
             else -> videoSources // Tracks will crash
         }
