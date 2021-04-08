@@ -16,6 +16,8 @@
 package com.otaliastudios.transcoder;
 
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -94,7 +96,7 @@ public class Transcoder {
     }
 
     public Future<Void> transcode(@NonNull final TranscoderOptions options) {
-        return transcode(new DefaultTranscodeOptionFactory(options));
+        return transcode(new DefaultTranscodeOptionFactory(options), options.getListener());
     }
 
     /**
@@ -104,12 +106,29 @@ public class Transcoder {
      * @return a Future that completes when transcoding is completed
      */
     @NonNull
-    public Future<Void> transcode(@NonNull final TranscodeOptionFactory factory) {
+    public Future<Void> transcode(@NonNull final TranscodeOptionFactory factory, final TranscoderListener listener) {
         return ThreadPool.getExecutor().submit(new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
-                TranscodeEngine.transcode(factory.create());
+            public Void call() {
+                try {
+                    TranscodeEngine.transcode(factory.create());
+                } catch (Throwable t) {
+                    dispatchFailure(listener, t);
+                }
                 return null;
+            }
+        });
+    }
+
+    private void dispatchFailure(final TranscoderListener listener, final Throwable t) {
+        if (listener == null) {
+            t.printStackTrace();
+            return;
+        }
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                listener.onTranscodeFailed(t);
             }
         });
     }
