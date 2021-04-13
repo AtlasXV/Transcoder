@@ -42,6 +42,7 @@ public abstract class DefaultDataSource implements DataSource {
 
     private long mDontRenderRangeStart = -1L;
     private long mDontRenderRangeEnd = -1L;
+    private boolean initialSeekDone = false;
 
     @Override
     public void initialize() {
@@ -141,6 +142,7 @@ public abstract class DefaultDataSource implements DataSource {
 
     @Override
     public long seekTo(long desiredPositionUs) {
+        initialSeekDone = true;
         boolean hasVideo = mSelectedTracks.contains(TrackType.VIDEO);
         boolean hasAudio = mSelectedTracks.contains(TrackType.AUDIO);
         LOG.i("seekTo(): seeking to " + (mOriginUs + desiredPositionUs)
@@ -188,6 +190,10 @@ public abstract class DefaultDataSource implements DataSource {
 
     @Override
     public boolean canReadTrack(@NonNull TrackType type) {
+        if (!initialSeekDone) {
+            seekTo(0);
+            LOG.i("initial seek to 0 done.");
+        }
         return mExtractor.getSampleTrackIndex() == mIndex.get(type);
     }
 
