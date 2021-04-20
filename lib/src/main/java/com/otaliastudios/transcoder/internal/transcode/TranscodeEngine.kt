@@ -5,6 +5,7 @@ import com.otaliastudios.transcoder.TranscoderOptions
 import com.otaliastudios.transcoder.internal.DataSources
 import com.otaliastudios.transcoder.internal.utils.Logger
 import com.otaliastudios.transcoder.internal.utils.trackMapOf
+import java.util.concurrent.atomic.AtomicInteger
 
 internal abstract class TranscodeEngine {
 
@@ -15,17 +16,21 @@ internal abstract class TranscodeEngine {
     abstract fun cleanup()
 
     companion object {
-        private val log = Logger("TranscodeEngine")
+        val log = Logger("TranscodeEngine")
 
-        private fun Throwable.isInterrupted(): Boolean {
+        fun Throwable.isInterrupted(): Boolean {
             if (this is InterruptedException) return true
             if (this == this.cause) return false
             return this.cause?.isInterrupted() ?: false
         }
 
+        val transcodingCount = AtomicInteger(0)
+        val transcodingLock = Object()
+
         @JvmStatic
         fun transcode(options: TranscoderOptions) {
-            log.i("transcode(): called...")
+            transcodingCount.incrementAndGet()
+            log.i("[transcode]transcode() called, transcodingCount=$transcodingCount")
             var engine: TranscodeEngine? = null
             val dispatcher = TranscodeDispatcher(options)
             try {
@@ -53,15 +58,19 @@ internal abstract class TranscodeEngine {
                 }
             } catch (e: Exception) {
                 if (e.isInterrupted()) {
-                    log.i("Transcode canceled.", e)
+                    log.i("[transcode]Transcode canceled.", e)
                     dispatcher.dispatchCancel()
                 } else {
-                    log.e("Unexpected error while transcoding.", e)
-                    dispatcher.dispatchFailure(e)
+                    log.e("[transcode]Unexpected error while transcoding.", e)
                     throw e
                 }
             } finally {
+                transcodingCount.decrementAndGet()
+                log.i("[transcode]transcode() finished, transcodingCount=$transcodingCount")
                 engine?.cleanup()
+                synchronized(transcodingLock) {
+                    transcodingLock.notifyAll()
+                }
             }
         }
     }

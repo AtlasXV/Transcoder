@@ -8,4 +8,5 @@ import com.otaliastudios.transcoder.TranscoderOptions
  */
 interface TranscodeOptionFactory {
     fun create(): TranscoderOptions
+    fun retryTimes(): Int
 }

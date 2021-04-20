@@ -16,22 +16,19 @@
 package com.otaliastudios.transcoder;
 
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.otaliastudios.transcoder.ext.DefaultTranscodeOptionFactory;
+import com.otaliastudios.transcoder.ext.TranscodeCallable;
 import com.otaliastudios.transcoder.ext.TranscodeOptionFactory;
 import com.otaliastudios.transcoder.internal.transcode.ThreadCountStrategy;
-import com.otaliastudios.transcoder.internal.transcode.TranscodeEngine;
 import com.otaliastudios.transcoder.internal.utils.ThreadPool;
 import com.otaliastudios.transcoder.sink.DataSink;
 import com.otaliastudios.transcoder.validator.Validator;
 
 import java.io.FileDescriptor;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 public class Transcoder {
@@ -107,30 +104,10 @@ public class Transcoder {
      */
     @NonNull
     public Future<Void> transcode(@NonNull final TranscodeOptionFactory factory, final TranscoderListener listener) {
-        return ThreadPool.getExecutor().submit(new Callable<Void>() {
-            @Override
-            public Void call() {
-                try {
-                    TranscodeEngine.transcode(factory.create());
-                } catch (Throwable t) {
-                    dispatchFailure(listener, t);
-                }
-                return null;
-            }
-        });
+        return ThreadPool.submit(new TranscodeCallable(factory, listener), true);
     }
 
-    private void dispatchFailure(final TranscoderListener listener, final Throwable t) {
-        if (listener == null) {
-            t.printStackTrace();
-            return;
-        }
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                listener.onTranscodeFailed(t);
-            }
-        });
+    public void cancel(boolean mayInterruptIfRunning) {
+        ThreadPool.cancel(mayInterruptIfRunning);
     }
-
 }

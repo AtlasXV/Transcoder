@@ -113,7 +113,7 @@ public class TranscoderActivity extends AppCompatActivity implements
                         .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 startActivityForResult(intent, REQUEST_CODE_PICK);
             } else {
-                mTranscodeFuture.cancel(true);
+                Transcoder.getInstance().cancel(true);
             }
         });
         setIsTranscoding(false);
