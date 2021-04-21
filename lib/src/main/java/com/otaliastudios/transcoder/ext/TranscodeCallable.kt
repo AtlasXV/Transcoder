@@ -15,7 +15,7 @@ import java.util.concurrent.Callable
 class TranscodeCallable(private val factory: TranscodeOptionFactory, private val listener: TranscoderListener) : Callable<Void?> {
     override fun call(): Void? {
         try {
-            transcode(factory.create())
+            transcode(factory.create(currentRetryTimes = 0))
         } catch (t: Throwable) {
             if (t.canRetryTranscode()) {
                 TranscodeEngine.log.w("[transcode][retry]transcode fail, submit retry.")

@@ -11,7 +11,7 @@ class DefaultTranscodeOptionFactory(private val transcoderOptions: TranscoderOpt
         return transcoderOptions
     }
 
-    override fun retryTimes(): Int {
+    override fun maxRetryTimes(): Int {
         return 0
     }
 }

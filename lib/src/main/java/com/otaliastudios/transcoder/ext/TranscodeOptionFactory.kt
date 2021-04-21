@@ -7,6 +7,6 @@ import com.otaliastudios.transcoder.TranscoderOptions
  * 3/25/21
  */
 interface TranscodeOptionFactory {
-    fun create(): TranscoderOptions
-    fun retryTimes(): Int
+    fun create(currentRetryTimes: Int): TranscoderOptions
+    fun maxRetryTimes(): Int
 }
