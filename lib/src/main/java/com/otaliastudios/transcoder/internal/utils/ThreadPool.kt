@@ -39,7 +39,8 @@ internal object ThreadPool {
             })
 
     private fun getThreadCount(): Int {
-        return threadCountStrategy?.getThreadCount() ?: (Runtime.getRuntime().availableProcessors() + 1)
+        val count = threadCountStrategy?.getThreadCount() ?: (Runtime.getRuntime().availableProcessors() + 1)
+        return count.coerceAtLeast(1)
     }
 
     private val runningFutureSet = Collections.synchronizedSet(HashSet<Future<Void?>>())
