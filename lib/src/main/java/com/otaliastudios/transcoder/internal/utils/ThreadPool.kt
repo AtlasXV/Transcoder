@@ -59,7 +59,7 @@ internal object ThreadPool {
 
     private fun trackFuture(future: Future<Void?>) {
         runningFutureSet.add(future)
-        executor.submit {
+        serialExecutor.submit {
             try {
                 future.get()
             } catch (t: Throwable) {
