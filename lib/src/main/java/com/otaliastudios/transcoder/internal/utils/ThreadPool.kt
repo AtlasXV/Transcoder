@@ -45,7 +45,6 @@ internal object ThreadPool {
 
     private val runningFutureSet = Collections.synchronizedSet(HashSet<Future<Void?>>())
 
-
     @JvmStatic
     fun submit(callable: Callable<Void?>, parallel: Boolean): Future<Void?> {
         val future = if (parallel) {
@@ -73,11 +72,10 @@ internal object ThreadPool {
 
     @JvmStatic
     fun cancel(mayInterruptIfRunning: Boolean) {
-        for (future in runningFutureSet) {
-            if (future.isCancelled || future.isDone) {
-                continue
+        runningFutureSet.forEach { future ->
+            if (!future.isCancelled && !future.isDone) {
+                future.cancel(mayInterruptIfRunning)
             }
-            future.cancel(mayInterruptIfRunning)
         }
     }
 }

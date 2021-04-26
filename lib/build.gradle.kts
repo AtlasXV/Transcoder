@@ -21,10 +21,11 @@ android {
 
 dependencies {
     api("com.otaliastudios.opengl:egloo:0.6.0")
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.2.0")
 
     androidTestImplementation("androidx.test:runner:1.3.0")
     androidTestImplementation("androidx.test:rules:1.3.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.2")
     androidTestImplementation("org.mockito:mockito-android:2.28.2")
+    testImplementation("junit:junit:4.13.2")
 }
