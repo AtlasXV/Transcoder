@@ -1,0 +1,63 @@
+name: release
+on:
+  push:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      ROOM_ID: "oc_88dfbcc32deb87cd3b664771e3aceb83"
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Cache gradle
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Do npm install
+        run: |
+          npm i -g standard-version
+          npm i -g conventional-github-releaser
+
+      - name: Publis lib
+        env:
+          GPR_USR: ${{ secrets.GPR_USR }}
+          GPR_KEY: ${{ secrets.GPR_KEY }}
+        run: |
+          ./gradlew publish
+
+      - name: Read lib version
+        id: vars
+        run: echo ::set-output name=libVersion::$(cat lib_version.txt)
+
+      - name: Add git tag
+        env:
+          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.CONVENTIONAL_GITHUB_RELEASER_TOKEN }}
+        run: |
+          git tag v${{ steps.vars.outputs.libVersion }}
+          git push origin v${{ steps.vars.outputs.libVersion }}
+          conventional-github-releaser -p angular
+
+      - name: Send notification
+        run: |
+          curl -XPOST \
+          -H "Content-Type:application/json" \
+          -H "X-SPACESHIP-TOKEN:${{ secrets.SPACESHIP_TOKEN }}" \
+          https://spaceship.etm.tech/hubot/notify \
+          -d '{"roomId":"${{ env.ROOM_ID }}","action":"${{ env.GITHUB_REPOSITORY }}","msg":"${{ github.repository }}发布了新版本，[点击查看](https://github.com/${{ github.repository }}/releases)"}'

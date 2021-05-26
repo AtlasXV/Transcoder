@@ -1,1 +1,0 @@
-Contributing guidelines are [hosted here](https://natario1.github.io/Transcoder/extra/contributing).
